@@ -14,7 +14,7 @@ int decode_uri(const char* str, char **res)
         perror("Malloc Failed");
         return -1;
     }
-    char *curr_str = str;
+    const char *curr_str = str;
     char *curr_res = *res;
     int errnum = 0;
     while (*curr_str) {
@@ -25,13 +25,24 @@ int decode_uri(const char* str, char **res)
             continue;
         }
         if (strlen(curr_str) < 3) {
-            *curr_str = '%';
+            *curr_res = '%';
+            curr_res++;
+            curr_str++;
             errnum++; 
+            continue;
         }
-        int charnum;
-        sscanf(curr_str, "%%%x2.", &charnum);
-        
-
+        unsigned int charnum;
+        sscanf(curr_str+1, "%2X", &charnum);
+        if (charnum == 0)
+            sscanf(curr_str+1, "%2x", &charnum);
+        if (charnum == 0) {
+            errnum++;
+            curr_str++;
+            continue;
+        }
+        *curr_res = (char) charnum;
+        curr_res++;
+        curr_str += 3;
     }
     curr_res = 0;
     *res = realloc(result, (strlen(result) + 1) *sizeof(char));
