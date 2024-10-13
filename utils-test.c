@@ -6,6 +6,18 @@
 
 #include "http_utils.h"
 
+void test_encode_uri(int *passed, int *total, const char *input, const char *output)
+{
+    char *result;
+    (*total)++;
+    encode_uri(input, &result);
+    if (!strcmp(result, output)) 
+        (*passed)++;
+    else 
+        fprintf(stderr, "Test case %d FAILED with result \"%s\", should be \"%s\"\n", *total,  result, output);
+    free(result);
+}
+
 void test_decode_uri(int *passed, int *total, const char *input, const char *output)
 {
     char *result;
@@ -73,7 +85,7 @@ int main(int argc, char **argv)
      */
     int passed = 0;
     int total = 0;
-    fprintf(stderr, "------BEGIN decode_uri UNIT TEST------\n");
+    fprintf(stderr, "\n------BEGIN decode_uri UNIT TEST------\n");
 
     test_decode_uri(&passed, &total, "", "");
     test_decode_uri(&passed, &total, "Hello World", "Hello World");
@@ -84,12 +96,12 @@ int main(int argc, char **argv)
     test_decode_uri(&passed, &total, "%00", "00");
 
     fprintf(stderr, "------END UNIT TEST------\n"
-            "Passed %d of %d cases\n", passed, total);
+            "Passed %d of %d cases\n\n", passed, total);
     
     passed = 0;
     total = 0;
 
-    fprintf(stderr, "------BEGIN decode_uri_l UNIT TEST------\n");
+    fprintf(stderr, "\n------BEGIN decode_uri_l UNIT TEST------\n");
 
     test_decode_uri_l(&passed, &total, "", 1, "");
     test_decode_uri_l(&passed, &total, "Hello World", 5, "Hello");
@@ -103,6 +115,18 @@ int main(int argc, char **argv)
 
     fprintf(stderr, "------END UNIT TEST------\n"
             "Passed %d of %d cases\n", passed, total);
+ 
+    passed = 0;
+    total = 0;
+    fprintf(stderr, "\n------BEGIN encode_uri UNIT TEST------\n");
+
+    test_encode_uri(&passed, &total, "", "");
+    test_encode_uri(&passed, &total, "Hello", "Hello");
+    test_encode_uri(&passed, &total, "Hello World", "Hello%20World");
+    test_encode_uri(&passed, &total, "%", "%25");
+
+    fprintf(stderr, "------END UNIT TEST------\n"
+            "Passed %d of %d cases\n\n", passed, total);
  
 
     return 0;

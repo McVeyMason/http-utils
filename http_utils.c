@@ -97,7 +97,7 @@ int encode_uri(const char* str, char **res)
         return -1;
     }
 
-    char *curr_str = str;
+    const char *curr_str = str;
     char *curr_res = result;
     while (*curr_str) {
         if (    ('a' <= *curr_str && *curr_str <= 'z') ||
@@ -108,7 +108,11 @@ int encode_uri(const char* str, char **res)
             curr_res++;
             continue;
         }
+        snprintf(curr_res, 4, "%%%2X", *curr_str);
+        curr_str++;
+        curr_res += 3;
     }
+    *curr_res = 0;
     *res = realloc(result, (strlen(result) + 1) * sizeof(char));
     return 0;
 }
